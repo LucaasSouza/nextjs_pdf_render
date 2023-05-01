@@ -3,7 +3,7 @@ import axios from 'axios';
 export default async function handler(req, res) {
   const { url } = req.query //É feito o desconstruct da queryString para pegar somente a url do pdf passado
 
-  await axios.get(url, { //É feito um get com a url passada via queryString, acompanhado também do header abaixo
+  await axios.get(url, { //É feito um get com a url passada via queryString, acompanhado também do header abaixo, para evitar o problema do CORS
     responseType: 'arraybuffer',
     responseEncoding: 'binary'
   })

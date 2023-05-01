@@ -25,7 +25,7 @@ export default function PDF(){
     }
 
     const handleClose = () => {
-        setPDF('')
+        return setPDF('')
     }
     
     return (

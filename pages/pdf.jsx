@@ -64,8 +64,7 @@ export default function PDF(){
                                         <li key={link}  style={{marginTop: '6px'}}>
                                             <p>
                                                 <span onClick={() => CarregarPDF(link) } style={{cursor: 'pointer'}}>
-                                                    <span>{ link === pdf ? '👉🏽 ' : '' }</span>
-                                                    { link }
+                                                    { (link === pdf ? '👉🏽 ' : '') + link }
                                                 </span>
 
                                                 <a href={link} target='_blank' style={{marginLeft: '30px', color: 'blue', borderBottom: '1px solid blue'}}>

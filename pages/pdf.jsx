@@ -2,13 +2,22 @@
 import axios from 'axios';
 import React, { useState } from 'react';
 import { Viewer } from '@react-pdf-viewer/core';
+import { zoomPlugin } from '@react-pdf-viewer/zoom';
+import '@react-pdf-viewer/zoom/lib/styles/index.css';
 //Mui Materials Import
 import Dialog from '@mui/material/Dialog';
 import Button from '@mui/material/Button';
-import CloseIcon from '@mui/icons-material/Close';
 import DialogContent from '@mui/material/DialogContent';
+//MUI Icons
+import CloseIcon from '@mui/icons-material/Close';
+import ZoomInIcon from '@mui/icons-material/ZoomIn';
+import ZoomOutIcon from '@mui/icons-material/ZoomOut';
 
 export default function PDF(){
+    const zoomPluginInstance = zoomPlugin() //Instância do plugin de zoom
+    const { Zoom } = zoomPluginInstance
+
+    const [size, setSize] = useState(1.5) //Controla a escala do viewer
     const [pdf, setPDF] = useState('') //State que inicialmente é vazio, mas após o primeiro request teste, armazena a url de um dos pdf's acima
     const [url, setURL] = useState([ //State que armazena os links 'base'
         'https://araucariageneticabovina.com.br/arquivos/servico/pdfServico_57952bf8ca7af_24-07-2016_17-58-32.pdf',
@@ -31,6 +40,7 @@ export default function PDF(){
 
         await axios.get('http://localhost:3000/api/showPDF?url=' + urlPDF) //Faz o get com a url inserida, para verificar se é um link de pdf válido
         .then((res) => {
+            setSize(1.5)
             setURL((prevTasks) => { return [ ...prevTasks, urlPDF ] }) //Caso seja válido, ele adiciona ao state
         })
         .catch((err) => {
@@ -39,7 +49,21 @@ export default function PDF(){
     }
 
     const handleClose = () => { //Limpa o state 'pdf', fechando o modal e o conteúdo nele
-        return setPDF('')
+        setPDF('')
+    }
+
+    const changeSize = (data, zoom) => { //É passado por parâmetro o método que altera o zoom e a "key" se a ação é zoomIn ou zoomOut
+        switch(zoom){
+            case 'zoomIn':
+                data.onZoom(size + 0.5) //Incrementamos os dados
+                setSize(size + 0.5)
+            break;
+                
+            case 'zoomOut':
+                data.onZoom(size - 0.5)
+                setSize(size - 0.5)
+            break;
+        }
     }
     
     return (
@@ -81,11 +105,60 @@ export default function PDF(){
 
                 <div>
                     <Dialog onClose={handleClose} open={pdf !== '' ? true : false} fullWidth>
-                        <DialogContent >
-                            <Button variant="outlined" onClick={handleClose} >
-                                <CloseIcon />
-                            </Button>
-                            <Viewer fileUrl={'http://localhost:3000/api/showPDF?url=' + pdf} />
+                        <DialogContent>
+                            <div>
+                                <Button variant="outlined" onClick={handleClose} >
+                                    <CloseIcon />
+                                </Button>
+                            </div>
+
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    position: 'absolute',
+                                    zIndex: '99',
+                                    right: 0,
+                                    top: 0,
+                                    margin: '18px'
+                                }}
+                            >
+                                <Zoom>
+                                    {(props) => (
+                                        <Button
+                                            style={{cursor: 'pointer'}}
+                                            disabled={props.scale === 4}
+                                            onClick={() => changeSize(props, 'zoomIn')}
+                                        >
+                                            <ZoomInIcon
+                                                fontSize='large'
+                                            />
+                                        </Button>
+                                    )}
+                                </Zoom>
+
+                                <Zoom>
+                                    {(props) => (
+                                        <Button
+                                            style={{cursor: 'pointer'}}
+                                            disabled={props.scale === 0.5}
+                                            onClick={() => changeSize(props, 'zoomOut')}
+                                        >
+                                            <ZoomOutIcon
+                                                fontSize='large'
+                                            />
+                                        </Button>
+                                    )}
+                                </Zoom>
+                            </div>
+
+                            <div>
+                                <Viewer
+                                    fileUrl={'http://localhost:3000/api/showPDF?url=' + pdf}
+                                    defaultScale={size}
+                                    plugins={[zoomPluginInstance]}    
+                                />
+                            </div>
                         </DialogContent>
                     </Dialog>
                 </div>

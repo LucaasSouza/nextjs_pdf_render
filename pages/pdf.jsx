@@ -40,7 +40,6 @@ export default function PDF(){
 
         await axios.get('http://localhost:3000/api/showPDF?url=' + urlPDF) //Faz o get com a url inserida, para verificar se é um link de pdf válido
         .then((res) => {
-            setSize(1.5)
             setURL((prevTasks) => { return [ ...prevTasks, urlPDF ] }) //Caso seja válido, ele adiciona ao state
         })
         .catch((err) => {
@@ -50,20 +49,12 @@ export default function PDF(){
 
     const handleClose = () => { //Limpa o state 'pdf', fechando o modal e o conteúdo nele
         setPDF('')
+        setSize(1.5)
     }
 
     const changeSize = (data, zoom) => { //É passado por parâmetro o método que altera o zoom e a "key" se a ação é zoomIn ou zoomOut
-        switch(zoom){
-            case 'zoomIn':
-                data.onZoom(size + 0.5) //Incrementamos os dados
-                setSize(size + 0.5)
-            break;
-                
-            case 'zoomOut':
-                data.onZoom(size - 0.5)
-                setSize(size - 0.5)
-            break;
-        }
+        data.onZoom(zoom)
+        setSize(zoom)
     }
     
     return (
@@ -120,7 +111,8 @@ export default function PDF(){
                                     zIndex: '99',
                                     right: 0,
                                     top: 0,
-                                    margin: '18px'
+                                    margin: '18px',
+                                    opacity: '0.6'
                                 }}
                             >
                                 <Zoom>
@@ -128,7 +120,7 @@ export default function PDF(){
                                         <Button
                                             style={{cursor: 'pointer'}}
                                             disabled={props.scale === 4}
-                                            onClick={() => changeSize(props, 'zoomIn')}
+                                            onClick={() => changeSize(props, (size + 0.5))}
                                         >
                                             <ZoomInIcon
                                                 fontSize='large'
@@ -142,7 +134,7 @@ export default function PDF(){
                                         <Button
                                             style={{cursor: 'pointer'}}
                                             disabled={props.scale === 0.5}
-                                            onClick={() => changeSize(props, 'zoomOut')}
+                                            onClick={() => changeSize(props, (size - 0.5))}
                                         >
                                             <ZoomOutIcon
                                                 fontSize='large'
